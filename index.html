@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>房地合一稅獲利試算</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --primary: #059669; /* Emerald 600 */
+      --primary-hover: #047857;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --focus-ring: rgba(16, 185, 129, 0.25);
+      --danger-bg: #fef2f2;
+      --danger-text: #ef4444;
+      --highlight-bg: #ecfdf5;
+      --highlight-text: #065f46;
+    }
+
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      margin: 0;
+      padding: 20px;
+      line-height: 1.5;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 600px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      padding: 32px;
+      box-sizing: border-box;
+    }
+
+    /* Header Section */
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      margin: 0 0 8px 0;
+      color: var(--text-main);
+    }
+
+    .alert-box {
+      background-color: var(--danger-bg);
+      color: var(--danger-text);
+      font-size: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      display: inline-block;
+      font-weight: 600;
+      border: 1px solid #fee2e2;
+    }
+
+    /* Info Card */
+    .info-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    
+    .info-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--primary);
+    }
+
+    .rate-table {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* Form Section */
+    .section-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin: 24px 0 12px 0;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 6px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background-color: #fff;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      color: var(--text-main);
+      -moz-appearance: textfield; /* Remove arrows on Firefox */
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--focus-ring);
+    }
+
+    .helper-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    /* Button */
+    button#calc {
+      width: 100%;
+      padding: 16px;
+      margin-top: 24px;
+      background: linear-gradient(135deg, var(--primary), #10b981);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+    }
+
+    button#calc:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 5px rgba(5, 150, 105, 0.2);
+    }
+
+    /* Result Section */
+    .result-box {
+      margin-top: 32px;
+      background: var(--highlight-bg);
+      border: 1px solid #d1fae5;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .result-row {
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed #a7f3d0;
+    }
+
+    .result-row:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .result-label {
+      font-size: 14px;
+      color: var(--highlight-text);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .result-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    
+    .result-value.net {
+      color: #047857; /* Darker green for net profit */
+    }
+
+    .formula-note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      text-align: left;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .agent-name {
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    a.btn-line {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 12px;
+      padding: 8px 20px;
+      background-color: #06c755; /* LINE Green */
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: opacity 0.2s;
+    }
+
+    a.btn-line:hover {
+      opacity: 0.9;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+        background: #fff;
+      }
+      .container {
+        box-shadow: none;
+        border-radius: 0;
+        padding: 24px 20px;
+      }
+      .rate-table {
+        grid-template-columns: 1fr;
+      }
+      .result-value {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>房地合一稅獲利試算</h1>
+    <div class="alert-box">⚠️ 適用民國 105 年後取得之房屋</div>
+  </header>
+
+  <div class="info-card">
+    <strong>📊 持有期間稅率表</strong>
+    <div class="rate-table">
+      <span>• 2 年以下：45%</span>
+      <span>• 2 ~ 5 年：35%</span>
+      <span>• 5 ~ 10 年：20%</span>
+      <span>• 10 年以上：15%</span>
+    </div>
+  </div>
+
+  <div class="section-title">第一步：計算成本</div>
+  
+  <div class="form-group">
+    <label>1. 房屋取得成本</label>
+    <input id="acquisition" type="number" placeholder="請輸入金額" min="0" />
+  </div>
+
+  <div class="form-group">
+    <label>2. 購買時仲介發票</label>
+    <input id="buyAgent" type="number" placeholder="0" min="0" />
+  </div>
+
+  <div class="form-group">
+    <label>3. 雜項費用 (代書費、規費等)</label>
+    <input id="misc" type="number" placeholder="0" min="0" />
+  </div>
+
+  <div class="form-group">
+    <label>4. 裝潢發票費用 <span style="font-weight:400; font-size:13px; color:#64748b">(可扣抵稅額)</span></label>
+    <input id="reno" type="number" placeholder="0" min="0" />
+  </div>
+
+  <div class="section-title" style="margin-top: 32px;">第二步：預估獲利</div>
+
+  <div class="form-group">
+    <label>5. 預計賣出金額</label>
+    <input id="sellPrice" type="number" placeholder="請輸入預售價" min="0" />
+  </div>
+
+  <div class="form-group">
+    <label>6. 賣出仲介費 (預設 4%)</label>
+    <input id="sellAgent" type="number" placeholder="系統自動計算" min="0" />
+    <div class="helper-text">*依賣出金額自動計算，可手動修改</div>
+  </div>
+
+  <div class="form-group">
+    <label>7. 預計持有年限</label>
+    <select id="holding">
+      <option value="45">持有 2 年以下 (稅率 45%)</option>
+      <option value="35">持有 2 ~ 5 年 (稅率 35%)</option>
+      <option value="20">持有 5 ~ 10 年 (稅率 20%)</option>
+      <option value="15">持有 10 年以上 (稅率 15%)</option>
+    </select>
+  </div>
+
+  <button id="calc">開始試算</button>
+
+  <div class="result-box" id="output">
+    <div class="result-row">
+      <div class="result-label">預估需繳納房地合一稅</div>
+      <div class="result-value" id="tax">0</div>
+    </div>
+    
+    <div class="result-row">
+      <div class="result-label">賣方實賺金額 (不含裝潢)</div>
+      <div class="result-value net" id="net">0</div>
+    </div>
+
+    <div class="formula-note">
+      💡 <strong>計算說明：</strong><br>
+      實賺金額 = 賣出價 - (取得成本 + 買賣仲介費 + 雜項 + 稅金)<br>
+      *裝潢費僅用於抵稅，不列入現金流計算
+    </div>
+  </div>
+
+  <footer>
+    <div class="agent-name">住商不動產・永康復國店｜張喻暄</div>
+    <div style="margin-top:4px">公司地址：台南市永康區復國路89號</div>
+    <a class="btn-line" href="https://line.me/" target="_blank">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px"><path d="M22 10.3c0-4.6-4.5-8.3-10-8.3S2 5.7 2 10.3c0 4.1 3.6 7.5 8.9 8.2.3 0 .8.2.9.5l.6 2c.2.5.1.9-.3.7L15 19.5c2.7-.8 5.7-3.8 5.7-7.2h1.3z"/></svg>
+      加 LINE 預約諮詢
+    </a>
+    <div style="margin-top:16px; font-size:12px; opacity:0.6">© 2025 Jia Label. All Rights Reserved.</div>
+  </footer>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  function toCurrency(n){
+    // 使用 formatter 讓 $ 符號和千分位更標準
+    return new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD', minimumFractionDigits: 0 }).format(n);
+  }
+
+  function calcAll(){
+    const acq = parseFloat($('acquisition').value) || 0;
+    const buyAgent = parseFloat($('buyAgent').value) || 0;
+    const misc = parseFloat($('misc').value) || 0;
+    const reno = parseFloat($('reno').value) || 0;
+    const sell = parseFloat($('sellPrice').value) || 0;
+    
+    let sellAgent = parseFloat($('sellAgent').value) || 0;
+    const autoSellAgent = sell * 0.04;
+    
+    // 邏輯優化：如果欄位是空的，或者是 0，且賣價大於 0，就幫忙算 4%
+    if (sell > 0 && ($('sellAgent').value === '' || parseFloat($('sellAgent').value) === 0)) {
+      sellAgent = autoSellAgent;
+      $('sellAgent').value = Math.round(sellAgent); // 更新 UI 顯示整數
+    }
+
+    const rate = parseFloat($('holding').value) / 100.0;
+
+    // 獲利計算 (課稅基礎)
+    const taxableGain = sell - sellAgent - acq - buyAgent - misc - reno;
+    const tax = Math.max(0, taxableGain) * rate;
+    
+    // 現金流計算 (實賺)
+    // 注意：裝潢費用已經是支出過的現金，所以算「最後拿回口袋的錢」時，
+    // 是 賣價 - (當初買的錢 + 買時仲介 + 雜費 + 賣時仲介 + 現在要繳的稅)
+    // 裝潢費不重複扣除，因為它包含在當初的現金流出了，但在這裡我們是算「這次賣出後的淨現金流」
+    // 原本的公式: sell - (acq + buyAgent + misc + sellAgent + tax) 是正確的 "Net Proceeds" 概念
+    const net = sell - (acq + buyAgent + misc + sellAgent + tax);
+
+    $('tax').textContent = toCurrency(Math.round(tax));
+    $('net').textContent = toCurrency(Math.round(net));
+  }
+
+  $('calc').addEventListener('click', calcAll);
+
+  // 監聽賣價變動，自動更新仲介費
+  $('sellPrice').addEventListener('input', ()=>{
+    const sell = parseFloat($('sellPrice').value) || 0;
+    // 只有當使用者沒有手動輸入過特殊的仲介費時，才自動更新
+    // 這裡簡化邏輯：只要賣價變動，就重新計算建議值 (UX 會比較順暢)
+    const autoSell = Math.round(sell * 0.04);
+    $('sellAgent').value = autoSell;
+  });
+  
+  // 讓按下 Enter 也可以觸發計算
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') calcAll();
+  });
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // 初始化清空
+    $('sellAgent').value = ''; 
+    calcAll();
+  });
+</script>
+</body>
+</html>
